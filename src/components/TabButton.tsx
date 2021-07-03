@@ -14,7 +14,7 @@ const Button = styled.button<{ isActive?: boolean }>`
   background: none;
   padding: 8px 20px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   ${(props) => (props.isActive ? activeBtnStyles : '')}
   &:focus,
   &:hover,

@@ -24,7 +24,9 @@ const ActionBar = ({ activeCategory, handleCategorySelect }: IActionBar) => {
         return (
           <TabButton
             key={cat}
-            onClick={() => handleCategorySelect(actCat)}
+            onClick={() => {
+              handleCategorySelect(actCat)
+            }}
             isActive={activeCategory === actCat}
           >
             {cat}

@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import ExternalLinkIcon from '../../icons/ExternalLinkIcon'
 import { category } from './TabMain'
 import { debounce } from 'lodash-es'
+import Loader from '../../icons/Loader'
 
 const verticalScrollStyles = css`
   overflow-y: auto;
@@ -20,6 +21,7 @@ const verticalScrollStyles = css`
 
 const TabContainerOuter = styled.div`
   height: calc(100% - 70px);
+  position: relative;
   overflow: auto;
   ${verticalScrollStyles}
 `
@@ -36,6 +38,10 @@ const ImageWrapper = styled.div`
   flex-flow: column;
   border-radius: 10px;
   overflow: hidden;
+  &:hover {
+    box-shadow: rgb(0 0 0 / 25%) 0px 2px 5px 1px;
+    transition: all 0.2s ease-in;
+  }
 `
 
 interface IImageGridItem {
@@ -62,14 +68,26 @@ const ImageInfo = styled.div`
 
   > p {
     font-size: 13px;
+    font-weight: 600;
     margin: 0;
     color: #172123;
   }
+`
+const LoaderOuter = styled.div`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  padding: 1rem;
 `
 
 const TabContainer = ({ activeCategory }: { activeCategory: category }) => {
   const [imageList, setImageList] = useState<any[]>([])
   const [isFetchingImageList, setIsFetchingImageList] = useState(false)
+  const [refetch, setRefetch] = useState(false)
   const [page, setPage] = useState(1)
   const itemsPerPage = 10
 
@@ -80,8 +98,9 @@ const TabContainer = ({ activeCategory }: { activeCategory: category }) => {
     if (activeCategory !== prevActCategory.current) {
       setPage(1)
       setImageList([])
-      prevActCategory.current = activeCategory
       currentScrollHeight.current = 0
+      prevActCategory.current = activeCategory
+      setRefetch(!refetch)
     } else {
       setIsFetchingImageList(true)
       fetch(
@@ -90,15 +109,18 @@ const TabContainer = ({ activeCategory }: { activeCategory: category }) => {
         .then((res) => {
           return res.json()
         })
-        .then((res) => {
-          setImageList((d) => [...d, ...res.hits])
+        .then((imgData) => {
+          return imgData.hits
+        })
+        .then((imgs) => {
+          setImageList((d) => [...d, ...imgs])
           setIsFetchingImageList(false)
         })
         .catch(() => {
           setIsFetchingImageList(false)
         })
     }
-  }, [activeCategory, page])
+  }, [activeCategory, page, refetch])
 
   useEffect(() => {
     fetchImages()
@@ -126,8 +148,8 @@ const TabContainer = ({ activeCategory }: { activeCategory: category }) => {
       }
     >
       <ImageGrid>
-        {imageList?.map((image: any) => (
-          <ImageWrapper key={image.id}>
+        {imageList?.map((image: any, idx) => (
+          <ImageWrapper key={`${image.id}/${idx}`}>
             <ImageGridItem url={image.previewURL}></ImageGridItem>
             <ImageInfo>
               <p>{image.user}</p>
@@ -139,6 +161,11 @@ const TabContainer = ({ activeCategory }: { activeCategory: category }) => {
           </ImageWrapper>
         ))}
       </ImageGrid>
+      {isFetchingImageList && (
+        <LoaderOuter>
+          <Loader color='#1c9811' height={50} />
+        </LoaderOuter>
+      )}
     </TabContainerOuter>
   )
 }
