@@ -1,6 +1,6 @@
-# Demo for Infinte scroll
+# Demo for Infinite scroll
 
-This project demonstrates how we can implement infinte scroll in react from scratch without using any external packages.
+This project demonstrates how we can implement Infinite scroll in react from scratch without using any external packages.
 
 ### `Api used for fetching images`
 
